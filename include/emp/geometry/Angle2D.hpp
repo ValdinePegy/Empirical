@@ -81,11 +81,11 @@ namespace emp {
   private:
     uint32_t angle;    // Int representation of an angle
 
-    static constexpr double ANGLE_CAP  = 65536.0;
+    static constexpr double ANGLE_CAP  = 65536.0; //360 deg
     static constexpr uint32_t UP       = 0;
-    static constexpr uint32_t RIGHT    = 16384;
-    static constexpr uint32_t DOWN     = 32768;
-    static constexpr uint32_t LEFT     = 49152;
+    static constexpr uint32_t RIGHT    = 16384; //90 deg
+    static constexpr uint32_t DOWN     = 32768; //180 deg
+    static constexpr uint32_t LEFT     = 49152; //270 deg
 
   public:
     constexpr Angle() : angle(0) { ; }
@@ -122,7 +122,11 @@ namespace emp {
 
     // Some basic rotations...
     Angle & RotateRight() { angle += RIGHT; return *this; }
-    Angle & RotateLeft()  { angle -= RIGHT; return *this; }
+    //Not desired behaviour as expected. This is an unsigned integer and therefore, -RIGHT is INT_MAX(2^32) - RIGHT
+    //This leads to improper calculations when calling RotateLeft.
+    //Consider: Angle & RotateLeft() {angle += Right*3;} keep it unsigned
+    //Better yet: Angle & RotateLeft() {(long) angle -= Right; } cast to long to allow negative operations
+    Angle & RotateLeft()  { angle -= RIGHT; return *this; } 
     Angle & RotateUTurn() { angle += DOWN; return *this; }
     Angle & RotateFull(uint32_t turns=1)  { angle += turns << 16; return *this; }
 
